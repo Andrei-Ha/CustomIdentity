@@ -1,22 +1,43 @@
 ﻿@model CustomIdentity.ViewModels.CreateUserViewModel
+
 @{
-    ViewBag.Title = "Добавление пользователя";
+    ViewData["Title"] = "Добавление нового пользователя";
 }
-<form asp-action="Create" asp-controller="Users">
-    <div asp-validation-summary="All" class="text-danger"></div>
-    <div class="form-group">
-        <label asp-for="Email" class="control-label">Email</label>
-        <input type="text" asp-for="Email" class="form-control" />
+<link rel="stylesheet" href="~/lib/bootstrap-select-1.13.9/css/bootstrap-select.min.css" />
+<script src="~/lib/bootstrap-select-1.13.9/js/bootstrap-select.min.js"></script>
+<script type="text/javascript">
+    function ChangeSel() {
+        let sel = document.getElementById("Linom");
+        let text = sel.options[sel.selectedIndex].text;
+        //window.alert("hello! " + text.split('-')[0].trim());
+        document.getElementById("UserName").value = text.split('-')[0].trim();
+        document.getElementById("Email").value = text.split('-')[1].trim();
+    }
+</script>
+<h4>Регистрация нового пользователя</h4>
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" id="UserName" name="UserName" value="@Model?.UserName" />
+            <input type="hidden" id="Email" name="Email" value="@Model?.Email" />
+            <div class="form-group">
+                <select asp-for="Linom" onchange="ChangeSel()" asp-items="ViewBag.Person" class="selectpicker show-tick form-control" title="выберите пользователя..." data-live-search="true"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="добавить" class="btn btn-primary" />
+            </div>
+        </form>
     </div>
-    <div class="form-group">
-        <label asp-for="Password" class="control-label">Пароль</label>
-        <input type="password" asp-for="Password" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Linom" class="control-label">Год рождения</label>
-        <input type="number" asp-for="Linom" class="form-control" />
-    </div>
-    <div class="form-group">
-        <input type="submit" value="Добавить" class="btn btn-outline-secondary" />
-    </div>
-</form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('.selectpicker').selectpicker();
+    });
+</script>

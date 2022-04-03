@@ -30,8 +30,7 @@ namespace CustomIdentity.Areas.Identity.Controllers
             _oraclePirr2n = _configuration.GetConnectionString("OraclePirr2n");
             _mssqlPirr2n = _configuration.GetConnectionString("MSsqlPirr2n");
         }
-        [HttpGet]
-        public IActionResult Register()
+        private List<SelList> ListPerson()
         {
             List<SelList> myList = new List<SelList>();
             using (OracleConnection con = new OracleConnection(_oraclePirr2n))
@@ -64,7 +63,12 @@ namespace CustomIdentity.Areas.Identity.Controllers
                     reader.Dispose();
                 }
             }*/
-            ViewData["Person"] = new SelectList(myList, "Id", "Text");
+            return myList;
+        }
+        [HttpGet]
+        public IActionResult Register()
+        {
+            ViewData["Person"] = new SelectList(ListPerson(), "Id", "Text");
             return View();
         }
         [HttpPost]
@@ -101,6 +105,7 @@ namespace CustomIdentity.Areas.Identity.Controllers
                     }
                 }
             }
+            ViewData["Person"] = new SelectList(ListPerson(), "Id", "Text", new SelList() { Id = model.Linom.ToString() });
             return View(model);
         }
         [HttpGet]

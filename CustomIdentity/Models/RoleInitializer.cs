@@ -16,10 +16,10 @@ namespace CustomIdentity.Models
             {
                 await roleManager.CreateAsync(new IdentityRole("admin"));
             }
-            if (await roleManager.FindByNameAsync("employee") == null)
+            /*if (await roleManager.FindByNameAsync("employee") == null)
             {
                 await roleManager.CreateAsync(new IdentityRole("employee"));
-            }
+            }*/
             if (await userManager.FindByNameAsync(adminEmail) == null)
             {
                 User admin = new User { Email = adminEmail, UserName = "Администратор", EmailConfirmed = true };

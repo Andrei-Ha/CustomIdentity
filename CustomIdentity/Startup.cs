@@ -26,8 +26,11 @@ namespace CustomIdentity
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IConfiguration>(Configuration);
+            //string connString = Configuration.GetConnectionString("MSsqlPirr2n");
+            //string connString = Configuration.GetConnectionString("ConnectionAndr-SQL");
+            string connString = Configuration.GetConnectionString("ConnectionPirr11");
             services.AddDbContext<ApplicationContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer(connString));
             services.AddIdentity<User, IdentityRole>(oopt =>
             {
                 oopt.Password.RequiredLength = 4;   // минимальная длина

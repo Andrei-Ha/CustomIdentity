@@ -20,8 +20,8 @@
     <div class="col-md-8">
         <form asp-action="Register">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" id="UserName" name="UserName" />
-            <input type="hidden" id="Email" name="Email" />
+            <input type="hidden" id="UserName" name="UserName" value="@Model?.UserName" />
+            <input type="hidden" id="Email" name="Email" value="@Model?.Email" />
             <div class="form-group">
                 <select asp-for="Linom" onchange="ChangeSel()" asp-items="ViewBag.Person" class="selectpicker show-tick form-control" title="выберите пользователя..." data-live-search="true"></select>
             </div>
