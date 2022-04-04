@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using CustomIdentity.Models;
+using CustomIdentity.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,6 +27,7 @@ namespace CustomIdentity
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IConfiguration>(Configuration);
+            services.AddScoped<EmailService>();
             //string connString = Configuration.GetConnectionString("MSsqlPirr2n");
             //string connString = Configuration.GetConnectionString("ConnectionAndr-SQL");
             string connString = Configuration.GetConnectionString("ConnectionPirr11");

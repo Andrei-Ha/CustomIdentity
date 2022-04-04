@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Data.SqlClient;
 using Oracle.ManagedDataAccess.Client;
 using Microsoft.Extensions.Configuration;
+using CustomIdentity.Services;
 
 namespace CustomIdentity.Areas.Identity.Controllers
 {
@@ -22,13 +23,15 @@ namespace CustomIdentity.Areas.Identity.Controllers
         private readonly IConfiguration _configuration;
         private readonly string _oraclePirr2n;
         private readonly string _mssqlPirr2n;
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration)
+        private readonly EmailService _emailService;
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, IConfiguration configuration, EmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
             _oraclePirr2n = _configuration.GetConnectionString("OraclePirr2n");
             _mssqlPirr2n = _configuration.GetConnectionString("MSsqlPirr2n");
+            _emailService = emailService;
         }
         private List<SelList> ListPerson()
         {
@@ -90,8 +93,7 @@ namespace CustomIdentity.Areas.Identity.Controllers
                         "Account",
                         new { userId = user.Id, code = code },
                         protocol: HttpContext.Request.Scheme);
-                    EmailService emailService = new EmailService();
-                    await emailService.SendEmailAsync(model.Email, "Confirm your account",
+                    await _emailService.SendEmailAsync(model.Email, "Confirm your account",
                         $"Подтвердите регистрацию, перейдя по ссылке: <a href='{callbackUrl}'>link</a>");
 
                     return Content("Для завершения регистрации проверьте электронную почту и перейдите по ссылке, указанной в письме");
@@ -193,8 +195,7 @@ namespace CustomIdentity.Areas.Identity.Controllers
                 }
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                EmailService emailService = new EmailService();
-                await emailService.SendEmailAsync(model.Email, "Reset Password",
+                await _emailService.SendEmailAsync(model.Email, "Reset Password",
                     $"Для сброса пароля пройдите по ссылке: <a href='{callbackUrl}'>link</a>");
                 return Content("Для сброса пороля перейдите по ссылке в письме,отправленном вам на email.");
             }
