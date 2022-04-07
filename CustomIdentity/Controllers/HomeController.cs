@@ -19,9 +19,10 @@ namespace CustomIdentity.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public IActionResult Index([FromQuery] string user)
         {
-            return View();
+            object oUser = user; 
+            return View(oUser);
         }
         //public async Task<IActionResult> SendEmail()
         //{

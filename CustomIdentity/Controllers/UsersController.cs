@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Oracle.ManagedDataAccess.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 
 namespace CustomIdentity.Controllers
 {
@@ -99,6 +100,10 @@ namespace CustomIdentity.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+                    // !!!save Linom of User into Claims with name ClaimTypes.Sid
+                    var claim = new Claim(ClaimTypes.Sid, model.Linom.ToString());
+                    await _userManager.AddClaimAsync(user, claim);
+
                     return RedirectToAction("Index");
                 }
                 else

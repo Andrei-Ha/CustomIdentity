@@ -13,6 +13,8 @@ using Microsoft.Data.SqlClient;
 using Oracle.ManagedDataAccess.Client;
 using Microsoft.Extensions.Configuration;
 using CustomIdentity.Services;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 
 namespace CustomIdentity.Areas.Identity.Controllers
 {
@@ -83,8 +85,9 @@ namespace CustomIdentity.Areas.Identity.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    //await _signInManager.SignInAsync(user, false);
-                    //return RedirectToAction("Index", "Home",new { Area = "" });
+                    // !!!save Linom of User into Claims with name ClaimTypes.Sid
+                    var claim = new Claim(ClaimTypes.Sid, model.Linom.ToString());
+                    await _userManager.AddClaimAsync(user, claim);
 
                     // генерация токена для пользователя
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -130,16 +133,41 @@ namespace CustomIdentity.Areas.Identity.Controllers
                         ModelState.AddModelError(string.Empty, "Вы не подтвердили свой Email!");
                         return View(model);
                     }
-                    var result =
-                        await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, false);
-                    if (result.Succeeded)
+
+                    var passwordIsCorrect = await _userManager.CheckPasswordAsync(user, model.Password);
+                    Claim customClaim = null;
+                    if (passwordIsCorrect)
                     {
+                        using OracleConnection con = new OracleConnection(_oraclePirr2n);
+                        using OracleCommand cmd = con.CreateCommand();
+                        con.Open();
+                        cmd.CommandText = "Select M_SLUZHBA from MAIL where M_LINOM = " + user.Linom;
+                        var podr = cmd.ExecuteScalar();
+                        if (podr != null)
+                        {
+                            customClaim = new Claim("Podr", podr.ToString());
+
+                        }
+
+                        var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
+                        if (customClaim != null)
+                        {
+                            if (claimsPrincipal?.Identity is ClaimsIdentity claimsIdentity)
+                            {
+                                claimsIdentity.AddClaim(customClaim);
+                            }
+
+                        }
+                        await _signInManager.Context.SignInAsync(IdentityConstants.ApplicationScheme,
+                                claimsPrincipal, new AuthenticationProperties { IsPersistent = model.RememberMe });
+
                         // проверяем, принадлежит ли URL приложению
                         if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
                         {
                             return Redirect(model.ReturnUrl);
                         }
-                        else return RedirectToAction("Index", "Home", new { Area = "" });
+                        else
+                            return RedirectToAction("Index", "Home", new { Area = "" });
                     }
                 }
                 ModelState.AddModelError(string.Empty, "Неправильный логин или пароль!");
